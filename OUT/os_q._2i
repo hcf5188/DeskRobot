@@ -1,0 +1,6 @@
+--feedback "..\OUT\Desk_Robot.fed" -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I..\include_now -I..\uC-Library_files -I..\uC-CPU_files -I..\uCOS-II_files\Ports -I..\uCOS-II_files\Source -ID:\TI\TivaWare_C_Series-2.1.0.12573 -ID:\TI\TivaWare_C_Series-2.1.0.12573\inc -ID:\TI\TivaWare_C_Series-2.1.0.12573\driverlib -I..\APP
+-I D:\Keil_v4\ARM\RV31\INC
+-I D:\Keil_v4\ARM\CMSIS\Include
+-I D:\Keil_v4\ARM\Inc\TI\TM4C123
+-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RA3 -DARM_MATH_CM4 -D__FPU_PRESENT -D__TARGET_FPU_SOFTVFP -DTM4C123GH6PM
+-o ..\out\os_q.o --omf_browse ..\out\os_q.crf --depend ..\out\os_q.d "..\uCOS-II_files\Source\os_q.c"
