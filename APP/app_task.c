@@ -211,9 +211,9 @@ static void MessageCenterTask(void *pp)// 信息处理中心
 				case 0x61:  OSQPost(led61Cmd_Q,pTxBuf);continue;;    //眼灯板控制指令
 				case 0x62:  OSMboxPost(threeLed_Box,pTxBuf);continue;//三色状态灯控制指令			
 				case 0x63:  if(OSSemAccept(distSem)<=0)
-								OSSemPost(distSem); break;               //回复距离包，通知接收成功
+								OSSemPost(distSem); break;           //回复距离包，通知接收成功
 				case 0x64:  if(OSSemAccept(soundSem)<=0)
-								OSSemPost(soundSem);break;               //回复音量发送包，通知系统:平板接收成功
+								OSSemPost(soundSem);break;           //回复音量发送包，通知系统:平板接收成功
 				default  :  ;break;
 			}
 			if(Mem_free(pTxBuf) != OS_ERR_NONE)//处理完数据包进行内存释放

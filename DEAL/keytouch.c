@@ -21,6 +21,7 @@ void KeyDeal(void)
 static uint8_t keyFlag  = 0x00;//按键标志
 static uint8_t triger   = 0x00;//按下按键触发
 static uint8_t cont     = 0x00;//按住不放
+static uint8_t keyCountToOff = 0;//按键强制关机(音量- 连按5下，右转连按2下即可关机)
 
 static void KeyScan(void)
 {
@@ -43,6 +44,9 @@ static void KeyScan(void)
 	
 	triger = keyFlag & (keyFlag ^ cont);//记录按下的触发
 	cont = keyFlag;         //得到未释放的键值
+	
+	if(keyCountToOff >= 7)
+		POWER_OFF;
 }
 
 bool SendSound(bool flag,uint8_t range);
@@ -57,6 +61,7 @@ static void SoundDeal(void)
 	{
 		souRange = 1;
 		souCount = 0;
+		keyCountToOff = 0;
 		SendSound(true,souRange);//增音量
 	}//增加音量按键长按
 	if(cont & SOUNDADD)
@@ -78,12 +83,16 @@ static void SoundDeal(void)
 		souRange = 1;
 		souCount = 0;
 		SendSound(false,souRange);
+		keyCountToOff ++;
+		if(keyCountToOff > 5)
+			keyCountToOff = 0;
 	}
 	if(cont & SOUNDDEC)
 	{
 		souCount++;
 		if(souCount % SEND_TIME == (SEND_TIME - 1))
 		{
+			keyCountToOff = 0;
 			SendSound(false,souRange);
 		}
 		if((souCount%RANGEADD == (RANGEADD - 1)) && (souRange < 10))
@@ -120,7 +129,6 @@ bool SendSound(bool flag,uint8_t range)//发送声音
 		UART1SendDatas(p,10);
 		OSSemPend(soundSem,2,&err); //等待
 		temp ++;
-		POWER_OFF;
 	}while((err == OS_ERR_TIMEOUT)&&(temp)<4);
 	
 	if(Mem_free(p) != OS_ERR_NONE)//处理完数据包进行内存释放
@@ -136,11 +144,16 @@ static void LocationDeal(void)
 {
 	static uint8_t locationCount = 0; //记录按下保持的时间
 
-	if(triger & MOTORLEFT)   //轻按向左按键
+	if(triger & MOTORLEFT)   //轻按向右按键
 	{
 		SendMotor(false);
 		locationCount = 0;	
-	}//向左按键长按
+		
+		if(keyCountToOff > 4)
+			keyCountToOff ++;
+		else 
+			keyCountToOff = 0;	
+	}//向右按键长按
 	if(cont & MOTORLEFT)
 	{
 		locationCount ++;
@@ -154,6 +167,7 @@ static void LocationDeal(void)
 	{
 		SendMotor(true);
 		locationCount = 0;	
+		keyCountToOff = 0;
 	}//向左按键长按
 	if(cont & MOTORRIGHT)
 	{
@@ -161,6 +175,7 @@ static void LocationDeal(void)
 		if(locationCount >= KEY_TIME - 1)
 		{
 			locationCount = 0;
+			keyCountToOff = 0;
 			SendMotor(true);
 		}
 	}
